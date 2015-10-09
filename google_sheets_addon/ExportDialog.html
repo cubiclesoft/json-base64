@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <?!= HtmlService.createHtmlOutputFromFile('Stylesheet').getContent(); ?>
+  </head>
+  <body>
+    <div id="fatalerror"></div>
+<script type="text/javascript">
+window.onerror = function CustomErrorHandler(msg, url, linenum) {
+  document.getElementById('fatalerror').innerHTML = '<font style="color: #880000;">[FATAL]</font> A Javascript error occurred in ' + url + ' on line ' + linenum + '.  ' + msg;
+
+  return false;
+}
+</script>
+
+    <div>
+      <div id="contentwrap"></div>
+
+      <div class="block" id="dialog-button-bar">
+          <button id="dialog-export-button" class="action" style="display: none;" onclick="return RunExport();">Export</button>
+          <button id="dialog-cancel-button" onclick="google.script.host.close()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Include the core support functions. -->
+    <?!= HtmlService.createHtmlOutputFromFile('support').getContent(); ?>
+
+    <!-- Include the import dialog functions. -->
+    <?!= HtmlService.createHtmlOutputFromFile('ExportDialogJS').getContent(); ?>
+  </body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>JSON-Base64 Test Suite</title>
+</head>
+<body>
+<div id="finalverdict" style="float: right; width: 200px; height: 200px; background-color: #880000; border: 1px solid #333333; margin-left: 1.0em;">&nbsp;</div>
+<noscript>
+<style type="text/css">
+#finalverdict { background-color: #666666 !important; }
+</style>
+</noscript>
+<h1>JSON-Base64 Test Suite</h1>
+
+<noscript>Error:  Javascript must be enabled to run the test suite.</noscript>
+<div id="fatalerror"></div>
+<script type="text/javascript">
+window.onerror = function CustomErrorHandler(msg, url, linenum) {
+	document.getElementById('fatalerror').innerHTML = '<font style="color: #880000;">[FATAL]</font> A Javascript error occurred in ' + url + ' on line ' + linenum + '.  ' + msg;
+
+	return false;
+}
+</script>
+
+<!-- Support routines for full JSON-Base64 support and cross-browser integration with older browsers. -->
+<script type="text/javascript" src="crypto-js/md5.js"></script>
+<script type="text/javascript" src="crypto-js/core-min.js"></script>
+<script type="text/javascript" src="crypto-js/enc-base64-min.js"></script>
+<script type="text/javascript" src="json2.min.js"></script>
+
+<script type="text/javascript" src="jb64.js"></script>
+<script type="text/javascript" src="tests.txt"></script>
+<script type="text/javascript">
+var finalverdict = true;
+
+for (var x = 0; x < tests.length; x++)
+{
+	var test = tests[x];
+
+	document.write('<p><b>Test #' + (x + 1) + ':  ' + test['comment'] + '</b><br />\n');
+
+	output = [];
+
+	// Test the encoder.
+	jb64 = new JB64Encode();
+	if (typeof test["headers"] !== 'undefined')
+	{
+		result = jb64.EncodeHeaders(test["headers"]);
+		if (result["success"] === test["header_result"])
+		{
+			document.write('<font style="color: #008800;">[PASS]</font> EncodeHeaders() returned expected result.<br />\n');
+		}
+		else
+		{
+			document.write('<font style="color: #880000;">[FAIL]</font> EncodeHeaders() returned unexpected result.<br />\n');
+			finalverdict = false;
+		}
+
+		if (result["success"])  output[output.length] = result["line"];
+	}
+	if (typeof test["data"] !== 'undefined')
+	{
+		for (var x2 = 0; x2 < test["data"].length; x2++)
+		{
+			result = jb64.EncodeRecord(test["data"][x2]);
+			if (result["success"] === test["data_results"][x2])
+			{
+				document.write('<font style="color: #008800;">[PASS]</font> EncodeRecord() for record #' + (x2 + 1) + ' returned expected result.<br />\n');
+			}
+			else
+			{
+				document.write('<font style="color: #880000;">[FAIL]</font> EncodeRecord() for record #' + (x2 + 1) + ' returned unexpected result.<br />\n');
+				finalverdict = false;
+			}
+
+			if (result["success"])  output[output.length] = result["line"];
+		}
+	}
+
+	// Test the decoder.
+	if (typeof test["check_records"] !== 'undefined')
+	{
+		jb64 = new JB64Decode();
+		var line = output.shift();
+		result = jb64.DecodeHeaders(line);
+		if (result["success"])
+		{
+			document.write('<font style="color: #008800;">[PASS]</font> DecodeHeaders() succeeded.<br />\n');
+
+			if (JSON.stringify(result["headers"]) === JSON.stringify(test["headers"]))
+			{
+				document.write('<font style="color: #008800;">[PASS]</font> DecodeHeaders() returned expected result.<br />\n');
+
+				if (typeof test["header_map"] !== 'undefined')
+				{
+					result = jb64.SetHeaderMap(test["header_map"]);
+					if (result["success"])
+					{
+						document.write('<font style="color: #008800;">[PASS]</font> SetHeaderMap() succeeded.<br />\n');
+					}
+					else
+					{
+						document.write('<font style="color: #880000;">[FAIL]</font> SetHeaderMap() failed.<br />\n');
+						finalverdict = false;
+					}
+				}
+
+				for (var x2 = 0; x2 < test["check_records"].length; x2++)
+				{
+					line = output.shift();
+					result = jb64.DecodeRecord(line);
+					if (result["success"])
+					{
+						document.write('<font style="color: #008800;">[PASS]</font> DecodeRecord() succeeded.<br />\n');
+
+						if (JSON.stringify(result["ord_data"]) === JSON.stringify(test["check_records"][x2]))
+						{
+							document.write('<font style="color: #008800;">[PASS]</font> DecodeRecord() returned matching record data.<br />\n');
+						}
+						else
+						{
+							document.write('<font style="color: #880000;">[FAIL]</font> DecodeRecord() returned record data that does not match.<br />\n');
+							finalverdict = false;
+						}
+					}
+					else
+					{
+						document.write('<font style="color: #880000;">[FAIL]</font> DecodeRecord() failed.<br />\n');
+						finalverdict = false;
+					}
+				}
+
+				if (!output.length)
+				{
+					document.write('<font style="color: #008800;">[PASS]</font> Output contained the correct amount of data.<br />\n');
+				}
+				else
+				{
+					document.write('<font style="color: #880000;">[FAIL]</font> Output contained more data than expected.<br />\n');
+					finalverdict = false;
+				}
+			}
+			else
+			{
+				document.write('<font style="color: #880000;">[FAIL]</font> DecodeHeaders() returned unexpected result.<br />\n');
+				finalverdict = false;
+			}
+		}
+		else
+		{
+			document.write('<font style="color: #880000;">[FAIL]</font> DecodeHeaders() failed.<br />\n');
+			finalverdict = false;
+		}
+	}
+
+	document.write('</p>');
+}
+
+if (finalverdict)  document.getElementById('finalverdict').style.backgroundColor = '#008800';
+</script>
+</body>
+</html>

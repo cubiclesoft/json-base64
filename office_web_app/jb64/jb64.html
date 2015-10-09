@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+<link rel="stylesheet" type="text/css" href="jb64.css" />
+<script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1.0/hosted/office.js"></script>
+
+<script type="text/javascript" src="jquery-1.11.0.min.js"></script>
+
+<!-- Support routines for full JSON-Base64 support and cross-browser integration with older browsers. -->
+<script type="text/javascript" src="support/crypto-js/md5.js"></script>
+<script type="text/javascript" src="support/crypto-js/core-min.js"></script>
+<script type="text/javascript" src="support/crypto-js/enc-base64-min.js"></script>
+<script type="text/javascript" src="support/json2.min.js"></script>
+<script type="text/javascript" src="support/FileSaver.js"></script>
+
+<script type="text/javascript" src="support/jb64.js"></script>
+
+</head>
+<body>
+<div id="mainwrap">
+	<div id="headerwrap">
+		<div id="logowrap"><img src="logo_small.png" alt="JSON-Base64" /></div>
+		<div id="menuwrap"><div id="menuitems"><a href="#" onclick="return BeginImport();">Import</a> | <a href="#" onclick="return BeginExport();">Export</a></div></div>
+	</div>
+	<div id="fatalerror"></div>
+<script type="text/javascript">
+window.onerror = function CustomErrorHandler(msg, url, linenum) {
+	document.getElementById('fatalerror').innerHTML = '<font style="color: #880000;">[FATAL]</font> A Javascript error occurred in ' + url + ' on line ' + linenum + '.  ' + msg;
+
+	return false;
+}
+</script>
+	<div id="contentwrap">
+	</div>
+
+	<input type="file" id="import_file" name="data" accept="application/jb64" style="display: none;" />
+
+	<script type="text/javascript" src="jb64_app.js"></script>
+</div>
+</body>
+</html>

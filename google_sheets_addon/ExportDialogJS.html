@@ -1,0 +1,224 @@
+<script>
+$(function() {
+  BeginExport();
+});
+
+var jb64_app_exportdata = null;
+var jb64_app_exportfilename = null;
+
+function HTMLEncode(html) {
+  return document.createElement('a').appendChild(document.createTextNode(html)).parentNode.innerHTML.replace(/"/g, '&quot;');
+}
+
+function GASDateToUTC(ts) {
+  // Cut off dates older than 1970-01-01.  Will need to be rewritten if someone needs older dates.
+  if (typeof ts !== 'number' || ts < 0.0)  return "0000-00-00 00:00:00";
+
+  // Local time might be ahead of UTC, so add one extra day to times.
+  if (ts < 1.0)  ts += 1.0;
+
+  ts = new Date(ts);
+
+  return JB64_Base.FixDate(ts.getUTCFullYear() + '-' + (ts.getUTCMonth() + 1) + '-' + ts.getUTCDate() + ' ' + ts.getUTCHours() + ':' + ts.getUTCMinutes() + ':' + ts.getUTCSeconds());
+}
+
+function GASTimeToUTC(ts) {
+  return GASDateToUTC(ts).slice(-8);
+}
+
+function GASDateToLocal(ts) {
+  // Cut off dates older than 1970-01-01.  Will need to be rewritten if someone needs older dates.
+  if (typeof ts !== 'number' || ts < 0.0)  return "0000-00-00 00:00:00";
+
+  // Local time might be ahead of UTC, so add one extra day to times.
+  if (ts < 1.0)  ts += 1.0;
+
+  ts = new Date(ts);
+
+  return JB64_Base.FixDate(ts.getFullYear() + '-' + (ts.getMonth() + 1) + '-' + ts.getDate() + ' ' + ts.getHours() + ':' + ts.getMinutes() + ':' + ts.getSeconds());
+}
+
+function GASTimeToLocal(ts) {
+  return GASDateToLocal(ts).slice(-8);
+}
+
+function UpdateExportNotes() {
+  $('#contentwrap p.datetimenote').hide();
+
+  $('#contentwrap select.export_cols').each(function() {
+    var tempval = $(this).val();
+    if (tempval === "date" || tempval === "date-alt" || tempval === "time" || tempval === "time-alt")  $('#contentwrap p.datetimenote').show();
+  });
+}
+
+function BeginExport() {
+  $('#contentwrap').html('<p>Reading data, please wait...</p>');
+
+  jb64_app_exportdata = null;
+
+  // Retrieve the data for the current sheet.
+  google.script.run.withSuccessHandler(function (data) {
+    jb64_app_exportfilename = data.sheetname;
+    data = data.data;
+
+    if (data.length < 2)  $('#contentwrap').html('<p><font style="color: #880000;">[ERROR]</font> The sheet must contain at least two rows in order to export to JSON-Base64.</p>');
+    else
+    {
+      // Analyze the matrix for consistency.  This is ported from the JSON-Base64 Office App and may not be relevant.
+      var x = data[0].length;
+      var y = 0;
+      for (y = 0; y < data.length && data[y].length === x; y++)
+      {
+      }
+
+      if (y < data.length)  $('#contentwrap').html('<p><font style="color: #880000;">[ERROR]</font> Unable to process information.  The sheet has an inconsistent number of columns.</p>');
+      else
+      {
+        jb64_app_exportdata = data;
+
+		var types = [
+			"boolean",
+			"integer",
+			"number",
+			"date",
+			"date-alt",
+			"time",
+			"time-alt",
+			"string",
+		];
+
+        // Generate the header array based on the first two rows of data.
+        var html = '<p><b>Set column information:</b></p>';
+        for (var x2 = 0; x2 < x; x2++)
+        {
+          html += '<p>' + HTMLEncode(jb64_app_exportdata[0][x2]) + "<br />\n";
+          html += '<select id="export_col_' + x2 + '" name="export_col_' + x2 + '" class="export_cols">\n';
+          var temptype = typeof jb64_app_exportdata[1][x2];
+          data = jb64_app_exportdata[1][x2];
+          for (var x3 = 0; x3 < types.length; x3++)
+          {
+            var currtype = types[x3];
+            var tempval = '';
+
+            html += '<option value="' + currtype + '"' + (currtype === temptype ? ' selected' : '') + '>' + currtype + ' (';
+            switch (currtype)
+            {
+              case "boolean":  tempval = JB64_Base.ToBoolean(data).toString();  break;
+              case "integer":  tempval = JB64_Base.ToInteger(data).toString();  break;
+              case "number":  tempval = JB64_Base.ToNumber(data).toString();  break;
+              case "date":  tempval = GASDateToUTC(data);  break;
+              case "date-alt":  tempval = GASDateToLocal(data);  break;
+              case "time":  tempval = GASTimeToUTC(data);  break;
+              case "time-alt":  tempval = GASTimeToLocal(data);  break;
+              case "string":  tempval = JB64_Base.ToString(data);  break;
+            }
+            html += HTMLEncode(tempval.slice(0, 50) + (tempval.length < 50 ? '' : '...'));
+            html += ')</option>\n';
+          }
+          html += '</select>\n';
+          html += '</p>\n';
+        }
+
+        html += '<p class="note datetimenote">Applications that import JSON-Base64 expect exported \'date\' and \'time\' columns to be in UTC.</p>';
+
+        html += '<p id="exportmessage"></p>';
+
+        $('#contentwrap').html(html);
+
+        $('#contentwrap select.export_cols').change(UpdateExportNotes).keyup(UpdateExportNotes);
+        UpdateExportNotes();
+
+        $('#dialog-export-button').show();
+      }
+    }
+  }).withFailureHandler(function(msg) {
+    $('#contentwrap').html('<p><font style="color: #880000;">[ERROR]</font> Unable to retrieve spreadsheet values.  ' + msg + '</p>');
+  }).jb64Export();
+}
+
+function RunExport() {
+  // Generate the headers.
+  var headers = [], map = [];
+  var x = jb64_app_exportdata[0].length;
+  var jb64 = new JB64Encode();
+  var output = '';
+  for (var x2 = 0; x2 < x; x2++)
+  {
+    var tempval = $('#export_col_' + x2).val();
+    map[x2] = tempval;
+    tempval = tempval.replace("-alt", "");
+    headers[x2] = [jb64_app_exportdata[0][x2], tempval];
+  }
+
+  var result = jb64.EncodeHeaders(headers);
+  if (!result["success"])
+  {
+    $('#exportmessage').html('<font style="color: #880000;">[ERROR]</font> Unable to encode JSON-Base64 headers.<br /><br />' + result.error);
+
+    return false;
+  }
+
+  output += result.line;
+
+  // Generate the records.
+  var success = true;
+  var record = [];
+  for (var y = 1; y < jb64_app_exportdata.length; y++)
+  {
+    for (var x2 = 0; x2 < x; x2++)
+    {
+      var tempval = jb64_app_exportdata[y][x2];
+
+      if (map[x2] === "date")  tempval = GASDateToUTC(tempval);
+      else if (map[x2] === "date-alt")  tempval = GASDateToLocal(tempval);
+      else if (map[x2] === "time")  tempval = GASTimeToUTC(tempval);
+      else if (map[x2] === "time-alt")  tempval = GASTimeToLocal(tempval);
+
+      record[x2] = tempval;
+    }
+
+    result = jb64.EncodeRecord(record);
+    if (result["success"])  output += result.line;
+    else
+    {
+      $('#exportmessage').html('<font style="color: #880000;">[ERROR]</font> Unable to encode JSON-Base64 record.<br /><br />' + result.error);
+      success = false;
+    }
+  }
+
+  // Calculate the filename.
+  var filename = jb64_app_exportfilename;
+  if (filename === null)  filename = "Untitled";
+
+  var y = filename.match(/([^\/\\]+)$/);
+  if (y)  filename = y[1];
+
+  if (filename === "")  filename = "Untitled";
+
+  y = filename.match(/([^\.]+)$/);
+  var fileext = (y && y[1] !== filename ? y[1] : '');
+
+  filename = (fileext === '' ? filename + '.jb64' : filename.slice(0, -(fileext.length)) + 'jb64');
+
+  // Initiate download.
+  var blob = new Blob([output], {type: "application/jb64; charset=utf-8"});
+  saveAs(blob, filename);
+
+  if (success)
+  {
+    $('#exportmessage').html('<font style="color: #008800;">[SUCCESS]</font> The records were exported successfully.');
+
+    jb64_app_timeout = null;
+    $(window).blur(function() {
+      if (jb64_app_timeout)  clearTimeout(jb64_app_timeout);
+      jb64_app_timeout = null;
+    });
+    $(window).focus(function() {
+      if (jb64_app_timeout)  clearTimeout(jb64_app_timeout);
+      jb64_app_timeout = setTimeout(function() {
+        google.script.host.close();
+      }, 1000);
+    });
+  }
+}
+</script>

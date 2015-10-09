@@ -1,0 +1,132 @@
+var tests = [
+	{
+		"comment" : "Test non-array headers.",
+		"header_result" : false,
+		"headers" : ""
+	},
+
+	{
+		"comment" : "Test empty array headers.",
+		"header_result" : false,
+		"headers" : [
+		]
+	},
+
+	{
+		"comment" : "Test headers without a type and data for invalid headers.",
+		"header_result" : false,
+		"headers" : [
+			["test_no_type"]
+		],
+		"data" : [
+			[1]
+		],
+		"data_results" : [
+			false
+		]
+	},
+
+	{
+		"comment" : "Test data without headers.",
+		"data" : [
+			[1]
+		],
+		"data_results" : [
+			false
+		]
+	},
+
+	{
+		"comment" : "Test valid headers and a wide variety of data inputs.",
+		"header_result" : true,
+		"headers" : [
+			["id", "integer"],
+			["active", "boolean"],
+			["level", "integer"],
+			["exp", "number"],
+			["lastupdated", "date"],
+			["nextevent", "time"],
+			["username", "string"],
+			["bio", "string"],
+			["avatar", "binary"],
+			["info", "custom:php.net_serialize"]
+		],
+		"data" : [
+			[1, true, 5, 15433, "2014-02-15 22:14:02", "00:13:01", "pretty_kitty", "I am a kitty cat and I dance, dance, dance, and I dance, dance, dance.", "", ""],
+			[2, false, 1, 150, "2010-07-10 14:52:55", "10:00:57", "buystuffhere", "Click the link below to go to my website and buy magical pills.", null, ""],
+			[3, true, 2, 1020, "2014-02-16 02:35:11", "09:40:20", "beansaredelish", "I love beans.", "http://gravatar.com/beansaredelicious", ""],
+			{"id" : 4.01, "active" : "2", "level" : 1, "exp" : 0, "lastupdated" : "2011-04-01 13:10", "nextevent" : "09:40", "username" : "beansaredelish2", "bio" : "\u00A9 <-- Simple Unicode shenanigans.", "avatar" : "http://gravatar.com/beansaredelicious", "info" : ""},
+			[5],
+			[6, true, 2, 1020, "2014-02-16 02:35:11", "09:40:20", "beansaredelish3", "I love beans.", "http://gravatar.com/beansaredelicious", "", "extra!"],
+			[]
+		],
+		"data_results" : [
+			true,
+			true,
+			true,
+			true,
+			false,
+			false,
+			false
+		],
+		"check_records" : [
+			[1, true, 5, 15433.0, "2014-02-15 22:14:02", "00:13:01", "pretty_kitty", "I am a kitty cat and I dance, dance, dance, and I dance, dance, dance.", "", ""],
+			[2, false, 1, 150.0, "2010-07-10 14:52:55", "10:00:57", "buystuffhere", "Click the link below to go to my website and buy magical pills.", null, ""],
+			[3, true, 2, 1020.0, "2014-02-16 02:35:11", "09:40:20", "beansaredelish", "I love beans.", "http://gravatar.com/beansaredelicious", ""],
+			[4, true, 1, 0.0, "2011-04-01 13:10:00", "09:40:00", "beansaredelish2", "\u00A9 <-- Simple Unicode shenanigans.", "http://gravatar.com/beansaredelicious", ""]
+		]
+	},
+
+	{
+		"comment" : "Tests valid headers, a wide variety of data inputs, and an alternate header mapping.",
+		"header_result" : true,
+		"headers" : [
+			["id", "integer"],
+			["active", "boolean"],
+			["level", "integer"],
+			["exp", "number"],
+			["lastupdated", "date"],
+			["nextevent", "time"],
+			["username", "string"],
+			["bio", "string"],
+			["avatar", "binary"],
+			["info", "custom:php.net_serialize"]
+		],
+		"data" : [
+			[1, true, 5, 15433, "2014-02-15 22:14:02", "00:13:01", "pretty_kitty", "I am a kitty cat and I dance, dance, dance, and I dance, dance, dance.", "", ""],
+			[2, false, 1, 150, "2010-07-10 14:52:55", "10:00:57", "buystuffhere", "Click the link below to go to my website and buy magical pills.", null, ""],
+			[3, true, 2, 1020, "2014-02-16 02:35:11", "09:40:20", "beansaredelish", "I love beans.", "http://gravatar.com/beansaredelicious", ""],
+			{"id" : 4.01, "active" : "2", "level" : 1, "exp" : 0, "lastupdated" : "2011-04-01 13:10", "nextevent" : "09:40", "username" : "beansaredelish2", "bio" : "\u00A9 <-- Simple Unicode shenanigans.", "avatar" : "http://gravatar.com/beansaredelicious", "info" : ""},
+			[5],
+			[6, true, 2, 1020, "2014-02-16 02:35:11", "09:40:20", "beansaredelish3", "I love beans.", "http://gravatar.com/beansaredelicious", "", "extra!"],
+			[]
+		],
+		"data_results" : [
+			true,
+			true,
+			true,
+			true,
+			false,
+			false,
+			false
+		],
+		"header_map" : [
+			["id", "string", false],
+			["active", "string", false],
+			["level", "string", false],
+			["experience", "string", false],
+			["lastupdated", "string", false],
+			["nextevent", "string", false],
+			["username", "string", false],
+			["bio_details", "string", false],
+			["avatar_url", "binary", false],
+			["info", "binary", false]
+		],
+		"check_records" : [
+			["1", "1", "5", "15433", "2014-02-15 22:14:02", "00:13:01", "pretty_kitty", "I am a kitty cat and I dance, dance, dance, and I dance, dance, dance.", "", ""],
+			["2", "0", "1", "150", "2010-07-10 14:52:55", "10:00:57", "buystuffhere", "Click the link below to go to my website and buy magical pills.", "", ""],
+			["3", "1", "2", "1020", "2014-02-16 02:35:11", "09:40:20", "beansaredelish", "I love beans.", "http://gravatar.com/beansaredelicious", ""],
+			["4", "1", "1", "0", "2011-04-01 13:10:00", "09:40:00", "beansaredelish2", "\u00A9 <-- Simple Unicode shenanigans.", "http://gravatar.com/beansaredelicious", ""]
+		]
+	}
+];

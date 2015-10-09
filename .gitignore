@@ -1,0 +1,13 @@
+*.zip
+/cs/*
+/excel_converter/ExcelConverter/*
+/excel_converter/Final/*
+/js_screenshots/*
+/php/*.db
+/php/*.jb64
+/php/support/csdb/*
+/php/support/PHPExcel/*
+/*.png
+/*.php
+/*.html
+/*.css

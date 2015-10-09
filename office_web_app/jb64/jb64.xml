@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="TaskPaneApp">
+	<Id>af648679-56bc-41a4-94ef-0e7b97494814</Id>
+	<Version>1.0</Version>
+	<ProviderName>CubicleSoft</ProviderName>
+	<DefaultLocale>EN-US</DefaultLocale>
+	<DisplayName DefaultValue="JSON-Base64 import/export" />
+	<Description DefaultValue="Imports and exports files in the JSON-Base64 file format.  See http://jb64.org/ to learn more.  Public domain." />
+	<IconUrl DefaultValue="https://jb64.org/jb64_for_office_app/icon_32x32.png" />
+	<SupportUrl DefaultValue="https://jb64.org/excel_app/" />
+
+	<Capabilities>
+		<Capability Name="Document" />
+		<Capability Name="Workbook" />
+	</Capabilities>
+
+	<DefaultSettings>
+		<SourceLocation DefaultValue="https://jb64.org/jb64_for_office_app/jb64.html"/>
+	</DefaultSettings>
+
+	<Permissions>ReadWriteDocument</Permissions>
+</OfficeApp>

@@ -1,0 +1,129 @@
+<script>
+$(function () {
+  $('#dialog-select-file-button').click(BeginImport);
+
+  $('#import_file').change(function(e) {
+    var filename = $(this).val();
+    var y = filename.match(/([^\/\\]+)$/);
+    if (y)  filename = y[1];
+
+    if (filename !== "")
+    {
+      y = filename.match(/([^\.]+)$/);
+      var fileext = (y && y[1] !== filename ? y[1] : '');
+
+      if (fileext !== "jb64")  $('#contentwrap').html('<p><font style="color: #880000;">[ERROR]</font> Import failed.  The file "' + filename + '" does not have a .jb64 file extension.</p>');
+      else
+      {
+        var read = new FileReader();
+
+        read.onload = function(e) {
+          ProcessImport(read.result);
+        }
+
+        read.readAsText(this.files[0]);
+      }
+    }
+  });
+});
+
+function BeginImport() {
+  // Reset the selected file so the onchange fires.
+  $('#import_file').val(null);
+
+  // Now set the directions.
+  $('#contentwrap').html("<p>Select a JSON-Base64 (*.jb64) file to import.</p>");
+
+  // Click the hidden file selection button to open the file dialog.
+  $('#import_file').click();
+
+  return false;
+}
+
+var jb64_app_importheaders = null;
+
+function UTCToLocalDate(ts) {
+  if (ts === '0000-00-00 00:00:00')  return ts;
+
+  ts = new Date(Date.parse(ts.replace(/-/g, '/') + ' UTC'));
+
+  return JB64_Base.FixDate(ts.getFullYear() + '-' + (ts.getMonth() + 1) + '-' + ts.getDate() + ' ' + ts.getHours() + ':' + ts.getMinutes() + ':' + ts.getSeconds());
+}
+
+function UTCToLocalTime(ts) {
+  return UTCToLocalDate('1970-01-02 ' + ts).slice(-8);
+}
+
+function ProcessImport(data) {
+  var lines = data.split('\n');
+
+  if (!lines.length)
+  {
+    $('#contentwrap').html('<p><font style="color: #880000;">[ERROR]</font> Import failed.  The file does not contain any data or the file contents failed to be read into memory.</p>');
+
+    return;
+  }
+
+  // Process the headers.
+  var line = lines.shift();
+  var jb64 = new JB64Decode();
+  var result = jb64.DecodeHeaders(line);
+  if (!result["success"])
+  {
+    $('#contentwrap').html('<p><font style="color: #880000;">[ERROR]</font> Unable to decode JSON-Base64 headers.</p><p>' + result.error + '</p>');
+
+    return;
+  }
+
+  $('#contentwrap').html('<p>Importing...</p>');
+
+  jb64_app_importheaders = result.headers;
+
+  data = [[]];
+  var x = jb64_app_importheaders.length;
+  for (var x2 = 0; x2 < x; x2++)  data[0][x2] = jb64_app_importheaders[x2][0];
+
+  // Process the records.
+  var html = '';
+  while (lines.length)
+  {
+    line = lines.shift().trim();
+    if (line !== "")
+    {
+      result = jb64.DecodeRecord(line);
+      if (!result["success"])  html += '<p><font style="color: #880000;">[ERROR]</font> Unable to decode JSON-Base64 record.</p><p>' + result.error + '</p>';
+      else
+      {
+        for (var x2 = 0; x2 < x; x2++)
+        {
+          if (jb64_app_importheaders[x2][1] == "date")  result.ord_data[x2] = UTCToLocalDate(result.ord_data[x2]);
+          else if (jb64_app_importheaders[x2][1] == "time")  result.ord_data[x2] = UTCToLocalTime(result.ord_data[x2]);
+        }
+
+        data[data.length] = result.ord_data;
+      }
+    }
+  }
+
+  $('#contentwrap').html(html + '<p>Importing...</p>');
+
+  $('#dialog-select-file-button').prop('disabled', true);
+
+  // Load the data into a new sheet.
+  google.script.run.withSuccessHandler(function (msg, element) {
+    element.disabled = false;
+
+    if (html === '')  google.script.host.close();
+    else
+    {
+      html += '<p><font style="color: #008800;">[SUCCESS]</font> Successfully imported the rest of the data.</p>';
+      $('#contentwrap').html(html);
+    }
+  }).withFailureHandler(function(msg, element) {
+    element.disabled = false;
+
+    html += '<p><font style="color: #880000;">[ERROR]</font> Import failed.  ' + msg + '</p>';
+    $('#contentwrap').html(html);
+  }).withUserObject($('#dialog-select-file-button')[0]).jb64Import(data);
+}
+</script>

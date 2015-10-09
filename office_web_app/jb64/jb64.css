@@ -1,0 +1,18 @@
+body { margin: 0; padding: 0.3em 1.5em 0.3em 0.3em; color: #333333; font-family: "Segoe UI Light", "Segoe UI", Tahoma, sans-serif; text-decoration-color: #4ec724; }
+
+a:link, a:active, a:visited { color: #539024; text-decoration: none; }
+a:hover { text-decoration: underline; }
+a img { border: none; }
+
+img { max-width: 100%; width: auto; height: auto; }
+
+div#headerwrap { text-align: center; }
+div#headerwrap div#menuwrap { border-top: 4px solid #071C37; }
+div#headerwrap div#menuwrap div#menuitems { font-size: 1.1em; display: none; }
+div#contentwrap { margin-top: 1.0em; }
+
+div#contentwrap p.note { color: #666666; font-size: 0.9em; }
+div#contentwrap p.datetimenote { display: none; }
+div#contentwrap select { max-width: 99%; }
+div#contentwrap p.buttonwrap { margin-top: 1.5em; }
+textarea#import_data, textarea#export_data { height: 150px; width: 99%; white-space: pre; word-wrap: normal; overflow: auto; }
