@@ -7,6 +7,7 @@
 /php/*.jb64
 /php/support/csdb/*
 /php/support/PHPExcel/*
+/php_tools/*
 /*.png
 /*.php
 /*.html

@@ -21,6 +21,7 @@
 			"a" => "addcol",
 			"c" => "changetype",
 			"d" => "dropcol",
+			"i" => "interactive",
 			"l" => "limit",
 			"n" => "notnull",
 			"o" => "reorder",
@@ -29,21 +30,25 @@
 			"?" => "help"
 		),
 		"rules" => array(
-			"delimiter" => array("arg" => true),
 			"addcol" => array("arg" => true, "multiple" => true),
 			"changetype" => array("arg" => true, "multiple" => true),
+			"dbnames" => array("arg" => false),
+			"delimiter" => array("arg" => true),
 			"dropcol" => array("arg" => true, "multiple" => true),
+			"interactive" => array("arg" => false),
 			"limit" => array("arg" => true),
 			"notnull" => array("arg" => false),
-			"reorder" => array("arg" => true),
 			"parser" => array("arg" => true),
 			"renamecol" => array("arg" => true, "multiple" => true),
+			"reorder" => array("arg" => true),
 			"help" => array("arg" => false)
 		)
 	);
 	$args = ParseCommandLine($options);
 
-	if (count($args["params"]) < 1 || isset($args["opts"]["help"]))
+	if (isset($args["opts"]["interactive"]) && count($args["params"]) < 2)  echo "DestFilename is required when using the -interactive option.\n\n";
+
+	if (count($args["params"]) < 1 || isset($args["opts"]["help"]) || (isset($args["opts"]["interactive"]) && count($args["params"]) < 2))
 	{
 		echo "JSON-Base64 command-line data mapping tool\n";
 		echo "Purpose:  Cleanup of JSON-Base64 headers and data.\n";
@@ -55,6 +60,8 @@
 		echo "\t-a=col,type[,val]   Adds a column, type, and default value.\n";
 		echo "\t-d=col              Drops a column.\n";
 		echo "\t-o=col[,col,col]    Reorder output columns as specified.  Unspecified columns are left in their original order.\n";
+		echo "\t-dbnames            Renames all columns to database-friendly names.\n";
+		echo "\t-i                  Interactive mode.  Speeds up bulk column changes.  DestFilename is required.\n";
 		echo "\t-p=phpfile          Includes the specified PHP file and calls your custom AlterRecord() function for each record.\n";
 		echo "\t-l=num              The number of records to process.  Default is all records.\n";
 		echo "\t-delimiter=,        Sets the delimiter for the other options.\n";
@@ -86,10 +93,22 @@
 		if ($exit)  exit();
 	}
 
+	function GetUserInput($question, $default)
+	{
+		echo $question . " [" . $default . "]:  ";
+
+		$line = fgets(STDIN);
+		$line = trim($line);
+		if ($line === "")  $line = $default;
+
+		return $line;
+	}
+
 	// Input file.
-	$stdin = ($args["params"][0] === "STDIN" && !file_exists($args["params"][0]));
+	$interactive = (isset($args["opts"]["interactive"]) && $args["opts"]["interactive"]);
+	$stdin = (!$interactive && $args["params"][0] === "STDIN" && !file_exists($args["params"][0]));
 	$fp = ($stdin ? STDIN : @fopen($args["params"][0], "rb"));
-	if ($fp === false)  DisplayError("Unable to open '" . $args["params"][0] . "' for reading.");
+	if ($fp === false)  DisplayError("Unable to open '" . $args["params"][0] . "' for reading." . ($interactive ? "  Interactive mode requires a physical input file." : ""));
 
 	// Read headers.
 	$jb64decode = new JB64Decode();
@@ -132,6 +151,16 @@
 		}
 	}
 
+	if (isset($args["opts"]["dbnames"]) && $args["opts"]["dbnames"])
+	{
+		foreach ($headers2 as $num => $info2)
+		{
+			$info2[0] = preg_replace('/\s+/', "_", trim(preg_replace('/[^a-z0-9]/', " ", strtolower(trim($info2[0])))));
+
+			$headers2[$num] = $info2;
+		}
+	}
+
 	if (isset($args["opts"]["changetype"]))
 	{
 		foreach ($args["opts"]["changetype"] as $info)
@@ -143,6 +172,22 @@
 				{
 					if ($info2[0] === $info[0])  $headers2[$num][1] = $info[1];
 				}
+			}
+		}
+	}
+
+	if ($interactive)
+	{
+		foreach ($headers2 as $num => $info2)
+		{
+			$info2[0] = GetUserInput("Column " . ($num + 1) . " name", $info2[0]);
+			$info2[1] = GetUserInput("Column " . ($num + 1) . " type", $info2[1]);
+
+			if ($info2[1] !== "-")  $headers2[$num] = $info2;
+			else
+			{
+				if (!isset($args["opts"]["dropcol"]))  $args["opts"]["dropcol"] = array();
+				$args["opts"]["dropcol"][] = $info2[0];
 			}
 		}
 	}
@@ -217,6 +262,7 @@
 
 	// Reorder the header columns.
 	$reordermap = array();
+	if ($interactive)  $args["opts"]["reorder"] = GetUserInput("Column order", implode($delimiter, array_keys($headerpos)));
 	if (isset($args["opts"]["reorder"]))
 	{
 		$headers4 = array();
