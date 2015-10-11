@@ -4,6 +4,8 @@ $(function() {
 });
 
 var jb64_app_exportdata = null;
+var jb64_app_exportcolnames = null;
+var jb64_app_exportdatatypes = null;
 var jb64_app_exportfilename = null;
 
 function HTMLEncode(html) {
@@ -54,11 +56,18 @@ function UpdateExportNotes() {
 function BeginExport() {
   $('#contentwrap').html('<p>Reading data, please wait...</p>');
 
+  $('#dialog-export-button').hide();
+  $('#dialog-reload-data-button').hide();
+
+  ResizeScrollZone();
+
   jb64_app_exportdata = null;
 
   // Retrieve the data for the current sheet.
   google.script.run.withSuccessHandler(function (data) {
     jb64_app_exportfilename = data.sheetname;
+    jb64_app_exportcolnames = data.colnames;
+    jb64_app_exportdatatypes = data.datatypes;
     data = data.data;
 
     if (data.length < 2)  $('#contentwrap').html('<p><font style="color: #880000;">[ERROR]</font> The sheet must contain at least two rows in order to export to JSON-Base64.</p>');
@@ -88,12 +97,13 @@ function BeginExport() {
 		];
 
         // Generate the header array based on the first two rows of data.
-        var html = '<p><b>Set column information:</b></p>';
+        var html = '<p>JSON-Base64 requires a header row and the data type of each column to be declared.</p>';
+        html += '<p><b>Set the data type for each column:</b></p>';
         for (var x2 = 0; x2 < x; x2++)
         {
-          html += '<p>' + HTMLEncode(jb64_app_exportdata[0][x2]) + "<br />\n";
+          html += '<p>' + jb64_app_exportcolnames[x2] + '1:  ' + HTMLEncode(jb64_app_exportdata[0][x2]) + "<br />\n";
           html += '<select id="export_col_' + x2 + '" name="export_col_' + x2 + '" class="export_cols">\n';
-          var temptype = typeof jb64_app_exportdata[1][x2];
+          var temptype = jb64_app_exportdatatypes[x2];
           data = jb64_app_exportdata[1][x2];
           for (var x3 = 0; x3 < types.length; x3++)
           {
@@ -119,7 +129,7 @@ function BeginExport() {
           html += '</p>\n';
         }
 
-        html += '<p class="note datetimenote">Applications that import JSON-Base64 expect exported \'date\' and \'time\' columns to be in UTC.</p>';
+        html += '<p class="note datetimenote"><span class="gray">Applications that import JSON-Base64 expect exported \'date\' and \'time\' columns to be in UTC.</span></p>';
 
         html += '<p id="exportmessage"></p>';
 
@@ -129,11 +139,16 @@ function BeginExport() {
         UpdateExportNotes();
 
         $('#dialog-export-button').show();
+        $('#dialog-reload-data-button').show();
+
+        ResizeScrollZone();
       }
     }
   }).withFailureHandler(function(msg) {
     $('#contentwrap').html('<p><font style="color: #880000;">[ERROR]</font> Unable to retrieve spreadsheet values.  ' + msg + '</p>');
   }).jb64Export();
+
+  return false;
 }
 
 function RunExport() {
@@ -153,7 +168,7 @@ function RunExport() {
   var result = jb64.EncodeHeaders(headers);
   if (!result["success"])
   {
-    $('#exportmessage').html('<font style="color: #880000;">[ERROR]</font> Unable to encode JSON-Base64 headers.<br /><br />' + result.error);
+    $('#exportmessage').html('<p><font style="color: #880000;">[ERROR]</font> Unable to encode JSON-Base64 headers.</p></p>' + result.error + '</p>');
 
     return false;
   }
@@ -181,7 +196,7 @@ function RunExport() {
     if (result["success"])  output += result.line;
     else
     {
-      $('#exportmessage').html('<font style="color: #880000;">[ERROR]</font> Unable to encode JSON-Base64 record.<br /><br />' + result.error);
+      $('#exportmessage').html('<p><font style="color: #880000;">[ERROR]</font> Unable to encode JSON-Base64 record.</p></p>' + result.error + '</p>');
       success = false;
     }
   }
@@ -206,19 +221,11 @@ function RunExport() {
 
   if (success)
   {
-    $('#exportmessage').html('<font style="color: #008800;">[SUCCESS]</font> The records were exported successfully.');
+    $('#contentwrap').html('<p><font style="color: #008800;">[SUCCESS]</font> The records were exported successfully.</p>');
 
-    jb64_app_timeout = null;
-    $(window).blur(function() {
-      if (jb64_app_timeout)  clearTimeout(jb64_app_timeout);
-      jb64_app_timeout = null;
-    });
-    $(window).focus(function() {
-      if (jb64_app_timeout)  clearTimeout(jb64_app_timeout);
-      jb64_app_timeout = setTimeout(function() {
-        google.script.host.close();
-      }, 1000);
-    });
+    $('#dialog-export-button').hide();
+
+    ResizeScrollZone();
   }
 }
 </script>

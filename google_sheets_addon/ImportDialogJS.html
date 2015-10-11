@@ -31,8 +31,8 @@ function BeginImport() {
   // Reset the selected file so the onchange fires.
   $('#import_file').val(null);
 
-  // Now set the directions.
-  $('#contentwrap').html("<p>Select a JSON-Base64 (*.jb64) file to import.</p>");
+  // Now clear any existing information.
+  $('#contentwrap').html("");
 
   // Click the hidden file selection button to open the file dialog.
   $('#import_file').click();

@@ -15,11 +15,13 @@ window.onerror = function CustomErrorHandler(msg, url, linenum) {
 </script>
 
     <div>
-      <div id="contentwrap"></div>
-
+      <div id="dialog-button-bar-scroll">
+        <div id="contentwrap"></div>
+      </div>
       <div class="block" id="dialog-button-bar">
-          <button id="dialog-export-button" class="action" style="display: none;" onclick="return RunExport();">Export</button>
-          <button id="dialog-cancel-button" onclick="google.script.host.close()">Cancel</button>
+        <button id="dialog-export-button" class="action" style="display: none;" onclick="return RunExport();">Export</button>
+        <button id="dialog-reload-data-button" style="display: none;" onclick="return BeginExport();">Reload data</button>
+        <button id="dialog-cancel-button" onclick="google.script.host.close()">Close</button>
       </div>
     </div>
 
@@ -27,6 +29,6 @@ window.onerror = function CustomErrorHandler(msg, url, linenum) {
     <?!= HtmlService.createHtmlOutputFromFile('support').getContent(); ?>
 
     <!-- Include the import dialog functions. -->
-    <?!= HtmlService.createHtmlOutputFromFile('ExportDialogJS').getContent(); ?>
+    <?!= HtmlService.createHtmlOutputFromFile('ExportSidebarJS').getContent(); ?>
   </body>
 </html>

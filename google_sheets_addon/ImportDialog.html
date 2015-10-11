@@ -15,12 +15,14 @@ window.onerror = function CustomErrorHandler(msg, url, linenum) {
 </script>
 
     <div>
-      <p>Select a JSON-Base64 (*.jb64) file to import its contents into a new sheet.</p>
-      <div class="block" id="dialog-button-bar">
-          <button id="dialog-select-file-button" class="action">Select file</button>
-          <button id="dialog-cancel-button" onclick="google.script.host.close()">Cancel</button>
+      <div id="dialog-button-bar-scroll">
+        <p>Select a JSON-Base64 (*.jb64) file to import its contents into a new sheet.</p>
+        <div id="contentwrap" class="importresponse"></div>
       </div>
-      <div id="contentwrap"></div>
+      <div class="block" id="dialog-button-bar">
+        <button id="dialog-select-file-button" class="action">Select file</button>
+        <button id="dialog-cancel-button" onclick="google.script.host.close()">Cancel</button>
+      </div>
     </div>
 
     <input type="file" id="import_file" name="data" accept="application/jb64" style="display: none;" />

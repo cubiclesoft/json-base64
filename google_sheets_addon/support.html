@@ -1,6 +1,22 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 
 <script>
+function ResizeScrollZone() {
+  var windowheight = $(window).outerHeight(true);
+  var bodymargin = $('body').outerHeight(true) - $('body').height() + 2;
+  $('#dialog-button-bar-scroll').height('auto');
+  var scrollheight = $('#dialog-button-bar-scroll').height();
+  var buttonsheight = $('#dialog-button-bar').outerHeight(true);
+
+  if (scrollheight + buttonsheight < windowheight - bodymargin)  $('#dialog-button-bar-scroll').height('auto').css('border-bottom', '1px solid transparent');
+  else  $('#dialog-button-bar-scroll').height(windowheight - bodymargin - buttonsheight).css('border-bottom', '1px solid #EEEEEE');
+}
+
+$(function() {
+  ResizeScrollZone();
+  $(window).resize(ResizeScrollZone);
+});
+
 // support/crypto-js/md5.js
 /*
 CryptoJS v3.1.2
