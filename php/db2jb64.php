@@ -241,12 +241,23 @@
 			$headers[] = array($key, $type);
 		}
 
+		// Output file/pipe.
+		if (count($args["params"]) > 0)
+		{
+			$fp2 = @fopen($args["params"][0], "wb");
+			if ($fp2 === false)  DisplayError("Unable to open '" . $args["params"][0] . "' for writing.");
+		}
+		else
+		{
+			$fp2 = STDOUT;
+		}
+
 		// Write out the headers.
 		$jb64 = new JB64Encode();
 		$result = $jb64->EncodeHeaders($headers);
 		if (!$result["success"])  DisplayError("Unable to generate JSON-Base64 headers due to bad input.", $result);
 
-		echo $result["line"];
+		fprintf($fp2, $result["line"]);
 
 		// Enable large results mode.
 		$db->LargeResults(true);
@@ -265,7 +276,7 @@
 
 				$result2 = $jb64->EncodeRecord($data);
 				if (!$result2["success"])  DisplayError("Unable to output JSON-Base64 data due to bad input in '" . $tablename . "'.", $result2, false);
-				else  echo $result2["line"];
+				else  fprintf($fp2, $result2["line"]);
 			}
 		}
 		catch (Exception $e)
@@ -365,12 +376,23 @@
 		// No results available.
 		if ($headers === false)  DisplayError("The SQL query had zero results.");
 
+		// Output file/pipe.
+		if (count($args["params"]) > 0)
+		{
+			$fp2 = @fopen($args["params"][0], "wb");
+			if ($fp2 === false)  DisplayError("Unable to open '" . $args["params"][0] . "' for writing.");
+		}
+		else
+		{
+			$fp2 = STDOUT;
+		}
+
 		// Write out the headers.
 		$jb64 = new JB64Encode();
 		$result = $jb64->EncodeHeaders($headers);
 		if (!$result["success"])  DisplayError("Unable to generate JSON-Base64 headers due to bad input.", $result);
 
-		echo $result["line"];
+		fprintf($fp2, $result["line"]);
 
 		// Reconnect to the database.
 		// Gets around issues with enabling large results and only pulling partial results.
@@ -408,7 +430,7 @@
 
 				$result2 = $jb64->EncodeRecord($data);
 				if (!$result2["success"])  DisplayError("Unable to output JSON-Base64 data due to bad input in query results.", $result2, false);
-				else  echo $result2["line"];
+				else  fprintf($fp2, $result2["line"]);
 			}
 		}
 		catch (Exception $e)

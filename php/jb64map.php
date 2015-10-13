@@ -341,12 +341,15 @@
 				foreach ($data2 as $info)  $data[] = $info;
 
 				// Let a custom AlterRecord() function modify the data.
-				if (is_callable("AlterRecord"))  call_user_func_array("AlterRecord", array($finalheaders, $headerpos, &$data));
+				$result = (is_callable("AlterRecord") ? call_user_func_array("AlterRecord", array($finalheaders, $headerpos, &$data)) : true);
 
-				// Encode the final record.
-				$result = $jb64encode->EncodeRecord($data);
-				if (!$result["success"])  DisplayError("Unable to output JSON-Base64 data due to bad input.", $result, false);
-				else  fwrite($fp2, $result["line"]);
+				if ($result)
+				{
+					// Encode the final record.
+					$result = $jb64encode->EncodeRecord($data);
+					if (!$result["success"])  DisplayError("Unable to output JSON-Base64 data due to bad input.", $result, false);
+					else  fwrite($fp2, $result["line"]);
+				}
 
 				if ($limit !== false)  $limit--;
 			}
