@@ -125,6 +125,16 @@
 		$utc = new DateTimeZone("UTC");
 	}
 
+	// Map all headers to strings.
+	$headers2 = $headers;
+	foreach ($headers2 as $num => $info)
+	{
+		$info[1] = "string";
+		$info[2] = false;
+	}
+	$result = $jb64->SetHeaderMap($headers2);
+	if (!$result["success"])  DisplayError("Unable to set the JSON-Base64 header map.", $result);
+
 	// Process the records.
 	$linenum = 1;
 	while (($line = fgets($fp)) !== false)
