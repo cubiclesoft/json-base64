@@ -129,8 +129,8 @@
 	$headers2 = $headers;
 	foreach ($headers2 as $num => $info)
 	{
-		$info[1] = "string";
-		$info[2] = false;
+		$headers2[$num][1] = "string";
+		$headers2[$num][2] = false;
 	}
 	$result = $jb64->SetHeaderMap($headers2);
 	if (!$result["success"])  DisplayError("Unable to set the JSON-Base64 header map.", $result);
