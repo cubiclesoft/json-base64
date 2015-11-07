@@ -227,7 +227,13 @@
 		{
 			switch ($info[0])
 			{
-				case "INTEGER":  $type = "integer";  break;
+				case "INTEGER":
+				{
+					if ($info[1] > 3 && $db->GetOne("SELECT", array("MAX(" . $db->QuoteIdentifier($key) . ") > " . PHP_INT_MAX, "FROM" => "?"), $tablename))  $type = "string";
+					else  $type = "integer";
+
+					break;
+				}
 				case "FLOAT":
 				case "NUMERIC":  $type = "number";  break;
 				case "DATE":
