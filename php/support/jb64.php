@@ -1,6 +1,6 @@
 <?php
 	// JSON-Base64 reference implementation.  (http://jb64.org/)
-	// Public Domain.
+	// (C) 2014 CubicleSoft.
 
 	class JB64_Base
 	{

@@ -1,5 +1,5 @@
 ﻿// JSON-Base64 reference implementation.  (http://jb64.org/)
-// Public Domain.
+// (C) 2014 CubicleSoft.
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

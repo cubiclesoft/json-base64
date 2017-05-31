@@ -1,5 +1,5 @@
 ﻿// JSON-Base64 test suite.  (http://jb64.org/)
-// Public Domain.
+// (C) 2014 CubicleSoft.
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -175,7 +175,7 @@ namespace JB64
                                 try
                                 {
                                     JB64Value[] Result = Decode.DecodeRecord(Line);
-                                    
+
                                     Console.WriteLine("[PASS] DecodeRecord() succeeded.");
 
                                     // Convert checking row to something easier to test.

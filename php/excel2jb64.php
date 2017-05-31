@@ -1,6 +1,6 @@
 <?php
 	// Excel to JSON-Base64 command-line conversion tool.
-	// Public Domain.  This code only.
+	// (C) 2014 CubicleSoft.
 
 	if (!isset($_SERVER["argc"]) || !$_SERVER["argc"])
 	{

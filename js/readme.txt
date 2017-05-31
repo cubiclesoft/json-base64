@@ -1,13 +1,12 @@
 *********************** Javascript JSON-Base64 Library ***********************
 
-This directory contains a public domain implementation of JSON-Base64 in
+This directory contains an open source implementation of JSON-Base64 in
 Javascript and the relevant test suite.
 
-CryptoJS is under the MIT license.  For a truly public domain implementation
-of JSON-Base64, don't use the files in the 'crypto-js' directory.
+CryptoJS is under the MIT license.
 
-Public domain + CryptoJS is confirmed to pass all tests in the test suite
-under the following web browsers:
+This implementation is confirmed to pass all tests in the test suite under the
+following web browsers:
 
   - Microsoft Internet Explorer 5.5+
   - Google Chrome 7.0+

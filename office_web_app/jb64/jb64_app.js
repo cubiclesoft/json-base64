@@ -1,5 +1,5 @@
 // JSON-Base64 task pane app for Microsoft Excel Online and Microsoft Excel 2013 and later.  (http://jb64.org/)
-// Public Domain.
+// (C) 2014 CubicleSoft.
 
 var jb64_app_filesaver = false;
 

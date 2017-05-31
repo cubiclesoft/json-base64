@@ -1,6 +1,6 @@
 *************************** C# JSON-Base64 Library ***************************
 
-This directory contains a public domain implementation of JSON-Base64 in C#
+This directory contains an open source implementation of JSON-Base64 in C#
 and the relevant test suite.  The .NET Solution was built in Visual Studio
 2012 and targets version 3.5 of the .NET Framework.  However, the library
 probably works on older versions of both Visual Studio and .NET just fine.
