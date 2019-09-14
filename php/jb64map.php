@@ -44,7 +44,7 @@
 			"help" => array("arg" => false)
 		)
 	);
-	$args = ParseCommandLine($options);
+	$args = CLI::ParseCommandLine($options);
 
 	if (isset($args["opts"]["interactive"]) && count($args["params"]) < 2)  echo "DestFilename is required when using the -interactive option.\n\n";
 

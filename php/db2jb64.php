@@ -53,7 +53,7 @@
 			"help" => array("arg" => false)
 		)
 	);
-	$args = ParseCommandLine($options);
+	$args = CLI::ParseCommandLine($options);
 
 	if (!isset($args["opts"]["dsn"]))  echo "Missing -d (-dsn) option.\n\n";
 	if (!isset($args["opts"]["table"]) && !isset($args["opts"]["query"]))  echo "Missing -t (-table) OR -q (-query) option.\n\n";
