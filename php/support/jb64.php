@@ -276,7 +276,7 @@
 		{
 			$line = trim($line);
 
-			if (strlen($line) > 33 && $line{strlen($line) - 33} == ".")
+			if (strlen($line) > 33 && $line[strlen($line) - 33] == ".")
 			{
 				$md5 = substr($line, -32);
 				$line = substr($line, 0, -33);
