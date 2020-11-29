@@ -9,7 +9,7 @@ http://jb64.org/implementations/
 
 JSON-Base64 is a serious replacement for the CSV file format.  It enjoys wide support for the most popular software packages including Microsoft Excel, Google Sheets, and many database products including SQLite and MySQL/Maria DB.
 
-[![Donate](https://cubiclesoft.com/res/donate-shield.png)](https://cubiclesoft.com/donate/)
+[![Donate](https://cubiclesoft.com/res/donate-shield.png)](https://cubiclesoft.com/donate/) [![Discord](https://img.shields.io/discord/777282089980526602?label=chat&logo=discord)](https://cubiclesoft.com/product-support/github/)
 
 Features
 --------
